@@ -2,6 +2,8 @@ package messenger.client.controller;
 
 import messenger.client.model.Info;
 
+/** Main client class. Prompts the user for login or sign up. On successful login creates a 
+ * {@link ChatManager} to control messaging. */
 public class Client {
 	private Info info;
 	private ChatManager chatManager;

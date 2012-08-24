@@ -8,14 +8,14 @@ import messenger.client.view.ClientGUI;
 
 
 /**
- * Main client class, handles and organizes the logics<p>
+ * Controls the messages to be sent and received.<p>
  * <b>Date:</b> <i>16 June 2012</i>
  * 
  * @author Rafi
- *
  */
 public class ChatManager extends Connection implements Constants
 {
+	/** This thread will work for getting non-message data (e.g. user lists or user info) from the server. */
 	private Thread infoThread;
 	private InfoReceiver infoReceiver;
 
@@ -66,6 +66,12 @@ public class ChatManager extends Connection implements Constants
 		userInterface.displayInfoMessage("Connection terminated");
 	}
 	
+	/** 
+	 * Sends a message to a specific client via the server.
+	 * 
+	 *  @param message Message to be sent
+	 *  @param receiverID Client ID of the receiver 
+	 */
 	public void sendData(String message, int receiverID) {
 		super.sendData(receiverID);
 		super.sendData(message);

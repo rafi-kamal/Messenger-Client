@@ -8,6 +8,7 @@ import messenger.client.Connection;
 import messenger.client.view.ClientGUI;
 import messenger.client.view.GUI;
 
+/** Requests and receives non-message data from the server (e.g. user lists or user info). */ 
 public class InfoReceiver extends Connection implements Constants, Runnable {
 
 	public InfoReceiver(GUI userInterface, String serverIP, int serverPort, int clientID) {
@@ -17,11 +18,9 @@ public class InfoReceiver extends Connection implements Constants, Runnable {
 	}
 
 	@Override
-	public void processConnection() {
-		while(true)
+	public void processConnection() { while(true)
 		{
-			try
-			{
+			try {
 				int command = (Integer) input.readObject();
 		
 				switch(command) {
@@ -33,7 +32,8 @@ public class InfoReceiver extends Connection implements Constants, Runnable {
 					updateFriendList();
 					break;
 				case USER_INFO:
-					getInfo();
+					int clientID = (Integer) input.readObject();
+					getInfo(clientID);
 					break;
 				}
 			}
@@ -47,6 +47,7 @@ public class InfoReceiver extends Connection implements Constants, Runnable {
 		}
 	}
 	
+	/*** Updates the <b>All User list.</b> */
 	public void updateAllUserList() {
 		
 		try {
@@ -69,10 +70,12 @@ public class InfoReceiver extends Connection implements Constants, Runnable {
 		}
 	}
 	
-	private void getInfo() {
+	/** Gets info (name, address e.g.) about a client from the server. */
+	private void getInfo(int clientID) {
 		
 	}
-
+	
+	/*** Updates the <b>Friend list</b>. */
 	private void updateFriendList() {
 		
 	}

@@ -9,11 +9,23 @@ import javax.swing.JOptionPane;
 import messenger.client.Connection;
 import messenger.client.view.LoggingUI;
 
+/**
+ * Displays a login screen and interact with the server for logging in.<br>
+ * If user is has no account, he can sign up and open a new account.<p>
+ * 
+ * After logging in, the client will be assigned a specific port number from the server through which
+ * he can conduct further communication.
+ * 
+ * @return Port number assigned to the client
+ */
 public class Logger extends Connection {
 	
+	/** Prevents the <code>getNewPort</code> and <code>getClientID</code> methods from executing 
+	 * until the user logs in. */
 	private final Lock proceed = new ReentrantLock();
 	private final Condition loginCompleted = proceed.newCondition();
 	
+	/** If the user is logged in. */
 	boolean isLoggedIn = false;
 	
 	public Logger(String serverIP, int serverPort) {
@@ -22,15 +34,16 @@ public class Logger extends Connection {
 		userInterface.setVisible(true);
 	}
 
+	/** The new port number on which client will reconnect after successful login. */
 	private int newPort;
 	
 	/**
-	 * Displays a login screen and interact with the server for logging in.<br>
-	 * If user is has no account, he can sign in and open a new account.<p>
+	 * Sends the server a login request. Server will process this request and sends a reply.
+	 * The reply will be analyzed in the <code>processConnection</code> method.
 	 * 
-	 * After signing in, the client will be assigned a specific port number from the server through which he can conduct further communication
-	 * @return 
-	 * @return Port number assigned to the client
+	 * @param userName User name of the client
+	 * @param password Password of the user
+	 * @param rememberMe If the client decides to be logged in this machine until he logs out
 	 */
 	public void logIn(String userName, String password, boolean rememberMe) {
 		setUpConnection(serverIP, serverPort);
@@ -41,6 +54,10 @@ public class Logger extends Connection {
 		closeConnection();
 	}
 	
+	/** 
+	 * Sends the server a sign up request. Server will process this request and sends a reply.
+	 * The reply will be analyzed in the <code>processConnection</code> method.
+	 */
 	public void signUp(String userName, String password) {
 		setUpConnection(serverIP, serverPort);
 		sendData(SIGNUP_REQUEST);
@@ -50,12 +67,15 @@ public class Logger extends Connection {
 		closeConnection();
 	}
 	
+	/** Returns the new port number where the client will reconnect.
+	 *  If log in is yet to be completed, the method waits. */
 	public int getNewPort() {
 		if(!isLoggedIn)
 			waitForLogIn();
 		return newPort;
 	}
 	
+	/** Returns the client ID for this user. If log in is yet to be completed, the method waits. */
 	public int getClientID() {
 		if(!isLoggedIn)
 			waitForLogIn();
@@ -96,6 +116,8 @@ public class Logger extends Connection {
 		}
 	}
 	
+	/** Blocks the <code>getNewPort</code> and <code>getClientID</code> methods from executing
+	 * until successful login. */
 	private void waitForLogIn() {
 		proceed.lock();
 		
@@ -111,6 +133,7 @@ public class Logger extends Connection {
 		}		
 	}
 	
+	/** Closes the login screen. */ 
 	public void closeUI() {
 		userInterface.close();
 	}
