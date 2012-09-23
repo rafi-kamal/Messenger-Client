@@ -26,7 +26,7 @@ public class Logger extends Connection {
 	private final Condition loginCompleted = proceed.newCondition();
 	
 	/** If the user is logged in. */
-	boolean isLoggedIn = false;
+	private boolean isLoggedIn = false;
 	
 	public Logger(String serverIP, int serverPort) {
 		super(serverIP, serverPort);
@@ -74,13 +74,6 @@ public class Logger extends Connection {
 			waitForLogIn();
 		return newPort;
 	}
-	
-	/** Returns the client ID for this user. If log in is yet to be completed, the method waits. */
-	public int getClientID() {
-		if(!isLoggedIn)
-			waitForLogIn();
-		return clientID;
-	}
 
 	@Override
 	public void processConnection() {
@@ -90,14 +83,15 @@ public class Logger extends Connection {
 			switch(messageCode) {
 			case LOGIN_SUCCESSFUL:
 				newPort = (Integer) input.readObject();
-				clientID = (Integer) input.readObject();
+				Client.clientID = (Integer) input.readObject();
+				Client.clientName = (String) input.readObject();
 				isLoggedIn = true;
 				
 				proceed.lock();
 				loginCompleted.signal();
 				proceed.unlock();
 				
-				System.out.println("Login successful. Client ID: " + clientID + ". Reconnecting in port " + newPort);
+				System.out.println("Login successful. Reconnecting in port " + newPort);
 				break;
 			case LOGIN_FAILED:
 				userInterface.displayErrorMessage("Username or password is incorrect");

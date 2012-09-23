@@ -19,11 +19,10 @@ public class ChatManager extends Connection implements Constants
 	private Thread infoThread;
 	private InfoReceiver infoReceiver;
 
-	public ChatManager(String serverIP, int serverPort, int clientID) {
+	public ChatManager(String serverIP, int serverPort) {
 		super(serverIP, serverPort);
-		this.clientID = clientID;
 		userInterface = new ClientGUI(this, serverPort);
-		infoReceiver = new InfoReceiver(userInterface, serverIP, serverPort + 1, clientID);
+		infoReceiver = new InfoReceiver(userInterface, serverIP, serverPort + 1);
 		infoThread = new Thread(infoReceiver);
 	}
 
@@ -75,6 +74,5 @@ public class ChatManager extends Connection implements Constants
 	public void sendData(String message, int receiverID) {
 		super.sendData(receiverID);
 		super.sendData(message);
-		((ClientGUI) userInterface).displayMessage(message, receiverID);
 	}
 }

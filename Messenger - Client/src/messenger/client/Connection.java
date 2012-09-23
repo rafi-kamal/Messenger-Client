@@ -17,8 +17,6 @@ public abstract class Connection implements Constants {
 	protected String serverIP;
 	/** Client will be connected to this port of the server */
 	protected int serverPort;
-	/** The unique ID of the client. Server will use it to recognize the client. */
-	protected int clientID;
 	
 	protected ObjectOutputStream output;
 	protected ObjectInputStream input;

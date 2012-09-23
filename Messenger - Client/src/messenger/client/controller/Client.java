@@ -9,6 +9,10 @@ public class Client {
 	private ChatManager chatManager;
 	private Logger logger;
 	
+	public static String clientName;
+	/** The unique ID of the client. Server will use it to recognize the client. */
+	public static int clientID;
+	
 	private void run() {
 		info = new Info();
 		String serverIP = info.getServerIP();
@@ -17,10 +21,9 @@ public class Client {
 		logger = new Logger(serverIP, serverPort);
 		
 		int newPort = logger.getNewPort();
-		int clientID = logger.getClientID();
-		System.out.println(newPort + ", " + clientID);
+		System.out.println(newPort + ", " + clientID + ": " + clientName);
 		logger.closeUI();
-		chatManager = new ChatManager(serverIP, newPort, clientID);
+		chatManager = new ChatManager(serverIP, newPort);
 		chatManager.run();
 	}
 	

@@ -17,16 +17,9 @@ public class ChatPanel extends JPanel {
 	private JTextArea showMessageArea;
 	private JTextField writeMessageField;
 	private int clientID;
-
-	/**
-	 * Create the panel.
-	 */
-	public ChatPanel(ChatManager user) {
-		this(user, 0);
-	}
 	
 	public ChatPanel(final ChatManager user, final int clientID) {
-		this.setClientID(clientID);
+		this.clientID = clientID;
 
 		setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
@@ -43,8 +36,10 @@ public class ChatPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				user.sendData(writeMessageField.getText(), clientID);
+				String message = writeMessageField.getText();
+				user.sendData(message, clientID);
 				writeMessageField.setText("");
+				show("Me: " + message);
 			}
 		});
 		
@@ -52,19 +47,10 @@ public class ChatPanel extends JPanel {
 		add(writeMessageField, BorderLayout.SOUTH);
 	}
 	
-	public JTextArea getShowMessageArea() {
+	/*public JTextArea getShowMessageArea() {
 		return showMessageArea;
-	}
-	
-	public JTextField getMessageField() {
-		return writeMessageField;
-	}
-
-	public int getClientID() {
-		return clientID;
-	}
-
-	public void setClientID(int clientID) {
-		this.clientID = clientID;
+	}*/
+	public void show(String message) {
+		showMessageArea.append(message + "\n");
 	}
 }

@@ -1,6 +1,7 @@
 package messenger.client.controller.Test;
 
 import junit.framework.Assert;
+import messenger.client.controller.Client;
 import messenger.client.controller.Logger;
 
 import org.junit.BeforeClass;
@@ -22,11 +23,11 @@ public class LoggerTest{
 		System.out.println("Started");
 		logger.logIn("Rafi", "1234", true);
 		Thread.sleep(500);
-		Assert.assertEquals(logger.getClientID(), 1);
+		Assert.assertEquals(Client.clientID, 1);
 		
 		logger.logIn("Sami", "qwerty", true);
 		Thread.sleep(500);
-		Assert.assertEquals(logger.getClientID(), 15);
+		Assert.assertEquals(Client.clientID, 15);
 	}
 
 }
