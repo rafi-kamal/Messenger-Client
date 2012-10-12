@@ -12,7 +12,7 @@ import messenger.client.view.GUI;
  * Base class for client connection. Any class in the client project which will be connected to
  * the server will inherit this class.
  */
-public abstract class Connection implements Constants {
+public abstract class ClientConnection implements Constants {
 	/** Client will be connected to this IP */
 	protected String serverIP;
 	/** Client will be connected to this port of the server */
@@ -25,9 +25,18 @@ public abstract class Connection implements Constants {
 	/** Any error or info message will be shown using this. */
 	protected GUI userInterface;
 	
-	public Connection(String serverIP, int serverPort) {
+	public ClientConnection() {
+		
+	}
+	
+	public ClientConnection(String serverIP, int serverPort) {
 		this.serverIP = serverIP;
 		this.serverPort = serverPort;
+	}
+	
+	/** Sets up the connection with the server. */
+	public void setUpConnection() {
+		setUpConnection(serverIP, serverPort);
 	}
 	
 	/** Sets up the connection with the server. */
@@ -36,7 +45,7 @@ public abstract class Connection implements Constants {
 			connection = new Socket(ipAddress, portNumber);
 			output = new ObjectOutputStream(connection.getOutputStream());
 			output.flush();
-			input = new ObjectInputStream(connection.getInputStream());	
+			input = new ObjectInputStream(connection.getInputStream());
 			System.out.println("Connection established with " + ipAddress + ", Port: " + portNumber);
 		}
 		catch(IOException ioException) {

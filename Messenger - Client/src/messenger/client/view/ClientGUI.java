@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -41,8 +42,7 @@ public class ClientGUI extends JFrame implements GUI, Constants {
 	private JTextField searchField;
 	private JLabel infoLabel;
 
-	private HashMap<Integer, ChatPanel> connections = new HashMap<Integer, ChatPanel>(
-			5);
+	private HashMap<Integer, ChatPanel> connections = new HashMap<Integer, ChatPanel>();
 	private ChatManager user;
 	private int userID;
 
@@ -66,8 +66,7 @@ public class ClientGUI extends JFrame implements GUI, Constants {
 		friendList = new HashMap<Integer, String>();
 
 		try {
-			UIManager
-					.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
@@ -130,32 +129,26 @@ public class ClientGUI extends JFrame implements GUI, Constants {
 		toolBar.setBackground(Color.WHITE);
 		contentPane.add(toolBar, BorderLayout.NORTH);
 
-		JButton showInfoButton = new JButton(new ImageIcon(getClass()
-				.getResource("Images/Info.png")));
-		showInfoButton.setBackground(Color.WHITE);
-		toolBar.add(showInfoButton);
-
-		JButton shareButton = new JButton(new ImageIcon(getClass().getResource(
+		JButton sendFileButton = new JButton(new ImageIcon(getClass().getResource(
 				"Images/share.png")));
-		shareButton.setBackground(Color.WHITE);
-		toolBar.add(shareButton);
-
-		JButton addButton = new JButton(new ImageIcon(getClass().getResource(
-				"Images/add.png")));
-		addButton.setBackground(Color.WHITE);
-		toolBar.add(addButton);
+		sendFileButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ChatPanel chatPanel = (ChatPanel) chatPane.getSelectedComponent();
+				if(chatPanel == null) {
+					JOptionPane.showMessageDialog(chatPanel, "Please select one");
+				} else {
+					int recieverID = chatPanel.clientID;
+					user.sendFile(recieverID);
+				}
+			}
+		});
+		sendFileButton.setBackground(Color.WHITE);
+		toolBar.add(sendFileButton);
 
 		searchField = new JTextField();
 		searchField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					int clientID = Integer.parseInt(searchField.getText());
-					createNewTab(clientID + "", clientID);
-					searchField.setText("");
-				} catch (Exception exception) {
-					displayErrorMessage("Please enter a valid ID");
-				}
-
+				// TODO
 			}
 		});
 		searchField.setForeground(Color.BLACK);

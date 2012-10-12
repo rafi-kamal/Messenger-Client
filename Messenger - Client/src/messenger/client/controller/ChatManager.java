@@ -1,8 +1,11 @@
 package messenger.client.controller;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 import messenger.Constants;
-import messenger.client.Connection;
+import messenger.client.ClientConnection;
 import messenger.client.model.InfoReceiver;
 import messenger.client.view.ClientGUI;
 
@@ -13,22 +16,22 @@ import messenger.client.view.ClientGUI;
  * 
  * @author Rafi
  */
-public class ChatManager extends Connection implements Constants
+public class ChatManager extends ClientConnection implements Constants
 {
 	/** This thread will work for getting non-message data (e.g. user lists or user info) from the server. */
 	private Thread infoThread;
 	private InfoReceiver infoReceiver;
 
-	public ChatManager(String serverIP, int serverPort) {
-		super(serverIP, serverPort);
+	public ChatManager(Socket connection, ObjectOutputStream output, ObjectInputStream input) {
+		this.output = output;
+		this.input = input;
+		this.connection = connection;
 		userInterface = new ClientGUI(this, serverPort);
-		infoReceiver = new InfoReceiver(userInterface, serverIP, serverPort + 1);
-		infoThread = new Thread(infoReceiver);
+		infoReceiver = new InfoReceiver(userInterface);
 	}
 
 	public void run() {
-		
-		setUpConnection(serverIP, serverPort);
+		infoThread = new Thread(infoReceiver);
 		infoThread.start();
 		processConnection();
 		closeConnection();
@@ -37,22 +40,24 @@ public class ChatManager extends Connection implements Constants
 	@Override
 	public void processConnection() {
 		
-		while(true) {
-			try {
+
+		try {
+			Client.clientID = (Integer) input.readObject();
+			Client.clientName = (String) input.readObject();
+			((ClientGUI) userInterface).setTitle(Client.clientName);
+			while(true) {
 				int senderID = (Integer) input.readObject();
 				String message = (String) input.readObject();				
 
 				((ClientGUI) userInterface).displayMessage(message, senderID);
 			}
-			catch(IOException ioException) {
-				userInterface.displayErrorMessage("Server terminated connection");
-				closeConnection();
-				break;
-			}
-			catch(ClassNotFoundException classNotFoundException) {
-				userInterface.displayErrorMessage("Unknown object type received");
-				break;
-			}
+		}
+		catch(IOException ioException) {
+			userInterface.displayErrorMessage("Server terminated connection");
+			closeConnection();
+		}
+		catch(ClassNotFoundException classNotFoundException) {
+			userInterface.displayErrorMessage("Unknown object type received");
 		}
 	}
 	
@@ -74,5 +79,9 @@ public class ChatManager extends Connection implements Constants
 	public void sendData(String message, int receiverID) {
 		super.sendData(receiverID);
 		super.sendData(message);
+	}
+	
+	public void sendFile(int clientID) {
+		infoReceiver.sendFileIntent(clientID);
 	}
 }

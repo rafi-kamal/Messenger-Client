@@ -16,7 +16,7 @@ import messenger.client.controller.ChatManager;
 public class ChatPanel extends JPanel {
 	private JTextArea showMessageArea;
 	private JTextField writeMessageField;
-	private int clientID;
+	int clientID;
 	
 	public ChatPanel(final ChatManager user, final int clientID) {
 		this.clientID = clientID;

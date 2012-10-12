@@ -3,9 +3,13 @@ package messenger.client.model;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
 import messenger.Constants;
-import messenger.client.Connection;
+import messenger.client.ClientConnection;
 import messenger.client.controller.Client;
+import messenger.client.controller.filetransfer.RecieveFile;
+import messenger.client.controller.filetransfer.SendFile;
 import messenger.client.view.ClientGUI;
 import messenger.client.view.GUI;
 
@@ -13,10 +17,15 @@ import messenger.client.view.GUI;
  * Requests and receives non-message data from the server (e.g. user lists or
  * user info).
  */
-public class InfoReceiver extends Connection implements Constants, Runnable {
+public class InfoReceiver extends ClientConnection implements Constants, Runnable {
 
-	public InfoReceiver(GUI userInterface, String serverIP, int serverPort) {
-		super(serverIP, serverPort);
+	private static int infoServerPort = 5556;
+	private static String infoServerIP = "127.0.0.1";
+	private static int fileServerPort = 5557;
+	private static String fileServerIP = "127.0.0.1";
+	
+	public InfoReceiver(GUI userInterface) {
+		super(infoServerIP, infoServerPort);
 		this.userInterface = userInterface;
 	}
 
@@ -33,20 +42,27 @@ public class InfoReceiver extends Connection implements Constants, Runnable {
 							+ connection.getPort() + " in "
 							+ connection.getLocalPort());
 					break;
-				case FRIEND_LIST:
-					updateFriendList();
+				case READY:
+					SendFile sendFile = new SendFile(fileServerIP, fileServerPort, 
+							(ClientGUI) userInterface);
+					Thread fileSendThread = new Thread(sendFile);
+					fileSendThread.start();
 					break;
-				case USER_INFO:
-					int clientID = (Integer) input.readObject();
-					getInfo(clientID);
+				case RECEIVE_FILE:
+					RecieveFile recieveFile = new RecieveFile(fileServerIP, fileServerPort, 
+							(ClientGUI) userInterface);
+					Thread fileRecieveThread = new Thread(recieveFile);
+					fileRecieveThread.start();
+					sendData(READY);
+					break;
+				case CANCEL:
+					JOptionPane.showMessageDialog(null, "File sending refused");
 					break;
 				}
 			} catch (ClassNotFoundException classNotFoundException) {
-				userInterface
-						.displayErrorMessage("Unknown object type received");
+				userInterface.displayErrorMessage("Unknown object type received");
 			} catch (IOException ioException) {
-				userInterface
-						.displayErrorMessage("Server terminated connection");
+				userInterface.displayErrorMessage("Server terminated connection");
 				closeConnection();
 			}
 		}
@@ -58,10 +74,10 @@ public class InfoReceiver extends Connection implements Constants, Runnable {
 		try {
 
 			Map<Integer, String> users = (Map<Integer, String>) input.readObject();
-			users.remove(Client.clientID);
-
-			((ClientGUI) userInterface).setAllUserList(users);
 			System.out.println(users);
+			
+			users.remove(Client.clientID);
+			((ClientGUI) userInterface).setAllUserList(users);
 		} catch (IOException e) {
 			userInterface.displayErrorMessage("Error getting User List");
 		} catch (ClassNotFoundException e) {
@@ -69,19 +85,14 @@ public class InfoReceiver extends Connection implements Constants, Runnable {
 		}
 	}
 
-	/** Gets info (name, address e.g.) about a client from the server. */
-	private void getInfo(int clientID) {
-
-	}
-
-	/*** Updates the <b>Friend list</b>. */
-	private void updateFriendList() {
-
+	public void sendFileIntent(int clientID) {
+		sendData(SEND_FILE);
+		sendData(clientID);
 	}
 
 	@Override
 	public void run() {
-		setUpConnection(serverIP, serverPort);
+		setUpConnection(infoServerIP, serverPort);
 		processConnection();
 	}
 }

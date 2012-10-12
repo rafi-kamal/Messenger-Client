@@ -15,4 +15,9 @@ public interface Constants {
 	
 	int CONNECTION_ERROR = -1;
 	int ERROR_CODE = -1;
+	
+	int SEND_FILE = 2001;
+	int RECEIVE_FILE = 2002;
+	int READY = 2000;
+	int CANCEL = 0000;
 }
